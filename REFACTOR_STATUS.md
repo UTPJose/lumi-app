@@ -1,8 +1,8 @@
 # 📋 Estado de Refactorización - Lumi App
 
 **Fecha de última actualización:** 2026-05-19  
-**Estado:** Fase 2 completada - Listo para Fase 3  
-**Próxima sesión:** Reorganizar arquitectura de carpetas
+**Estado:** Fase 3 completada - Arquitectura reorganizada por features  
+**Próxima sesión:** Phase 4 - Optimizaciones
 
 ---
 
@@ -781,9 +781,145 @@ lumi-app/
 
 ---
 
-## 🎯 Lo Que Sigue - PRÓXIMOS PASOS (Sesión 2+)
+## ✅ FASE 3: Reorganizar Arquitectura por Features (COMPLETADA)
 
-### Fase 3: Reorganizar Arquitectura (RECOMENDADO DESPUÉS DE VERIFICAR)
+**Fecha de finalización:** 2026-05-19  
+**Cambios:** 77 files moved/renamed
+
+### Estructura Nueva Implementada
+
+```
+src/
+├── lib/                           # Utilities (sin cambios)
+│   └── storage/
+├── types/                         # Tipos globales (sin cambios)
+├── hooks/                         # Hooks reutilizables (sin cambios)
+├── styles/                        # Estilos y constantes (sin cambios)
+├── features/                      # ✅ NUEVA - Organización por features
+│   ├── auth/                      # Autenticación
+│   │   └── pages/
+│   │       ├── WelcomePage.tsx
+│   │       ├── ProfileSetupPage.tsx
+│   │       └── NotFoundPage.tsx
+│   ├── routines/                  # Gestión de rutinas
+│   │   ├── pages/
+│   │   │   ├── HomePage.tsx
+│   │   │   ├── LibraryPage.tsx
+│   │   │   ├── RoutineDetailPage.tsx
+│   │   │   ├── CreateRoutinePage.tsx
+│   │   │   └── GeneratingPage.tsx
+│   │   └── components/
+│   │       ├── RoutineCard.tsx
+│   │       └── ActivityCard.tsx
+│   ├── profile/                   # Perfil usuario
+│   │   ├── pages/
+│   │   │   ├── ProfilePage.tsx
+│   │   │   └── InterestsPage.tsx
+│   │   └── components/
+│   │       └── InterestCard.tsx
+│   ├── reminders/                 # Recordatorios
+│   │   └── pages/
+│   │       └── RemindersPage.tsx
+│   ├── onboarding/                # Preguntas y voz
+│   │   └── pages/
+│   │       ├── QuestionsPage.tsx
+│   │       └── VoiceInputPage.tsx
+│   └── sharing/                   # Compartir
+│       └── pages/
+│           └── SharePage.tsx
+├── shared/                        # ✅ NUEVA - Componentes compartidos
+│   └── components/
+│       ├── layouts/
+│       │   └── PageLayout.tsx
+│       ├── buttons/
+│       │   ├── CardButton.tsx
+│       │   └── AccessibleButton.tsx
+│       ├── cards/
+│       │   └── StatCard.tsx
+│       ├── navigation/
+│       │   └── BottomNavigation.tsx
+│       ├── ui/                    # Shadcn/ui (45+ components)
+│       └── ImageWithFallback.tsx
+├── app/
+│   ├── App.tsx                    # sin cambios
+│   └── routes.tsx                 # imports actualizados
+└── main.tsx                       # sin cambios
+```
+
+### Cambios Realizados
+
+1. **Creación de estructura de carpetas:**
+   - 6 carpetas de features: auth, routines, profile, reminders, onboarding, sharing
+   - Carpeta shared con sub-carpetas: layouts, buttons, cards, navigation, ui
+
+2. **Migración de páginas (14 archivos):**
+   - 3 páginas → features/auth/pages/
+   - 5 páginas → features/routines/pages/
+   - 2 páginas → features/profile/pages/
+   - 1 página → features/reminders/pages/
+   - 2 páginas → features/onboarding/pages/
+   - 1 página → features/sharing/pages/
+
+3. **Migración de componentes (23 archivos):**
+   - 2 componentes específicos → features/routines/components/
+   - 1 componente específico → features/profile/components/
+   - 7 componentes compartidos → shared/components/ (en subcarpetas)
+   - 45+ componentes Shadcn/ui → shared/components/ui/
+
+4. **Actualización de imports:**
+   - `/src/app/routes.tsx` - 14 rutas de import actualizadas
+   - Todos los archivos movidos con imports relativos actualizados
+   - PageLayout.tsx - import de BottomNavigation corregido
+
+5. **Configuración:**
+   - `.eslintrc.json` - añadido soporte para JSX parsing
+
+### Verificación
+
+✅ **Build:** `pnpm build` compila sin errores  
+✅ **Dev Server:** `pnpm dev` inicia correctamente en puerto 5173  
+✅ **Git:** 77 archivos movidos correctamente con historial preservado  
+✅ **Imports:** Todos los imports actualizados y resueltos  
+
+### Beneficios de la Nueva Arquitectura
+
+1. **Escalabilidad:** Fácil agregar nuevas features
+2. **Organización:** Código relacionado junto en carpetas feature
+3. **Mantenibilidad:** Claro qué componentes pertenecen a cada dominio
+4. **Reusabilidad:** Componentes compartidos claramente separados
+5. **Navegación:** Más fácil encontrar archivos específicos
+
+### Estadísticas
+
+- **Archivos movidos:** 77 (git mv preservó historial)
+- **Carpetas creadas:** 13
+- **Reducción de profundidad de imports:** En promedio -1 nivel para archivos compartidos
+- **Build size:** Sin cambios (77.12 kB gzip)
+
+---
+
+## 📝 Lo Que Sigue - PRÓXIMOS PASOS (Fase 4+)
+
+### Fase 3: Reorganizar Arquitectura (COMPLETADA ✅)
+
+**Lo que se hizo:**
+- ✅ Creada estructura de features en `/src/features/`
+- ✅ Movidas todas las 14 páginas a sus feature folders
+- ✅ Movidas 23 componentes a locaciones correctas
+- ✅ Actualizados todos los imports (40+ rutas)
+- ✅ Limpiadas carpetas vacías
+- ✅ Verificado que build y dev server funcionan
+- ✅ Commit realizado: "refactor: reorganize architecture by features (Phase 3)"
+
+**Beneficios obtenidos:**
+- Código organizado por dominio/feature en lugar de por tipo
+- Más fácil escalar agregando nuevas features
+- Componentes compartidos claramente separados
+- Historial de git preservado (git mv)
+
+---
+
+### Fase 4: Optimizaciones (RECOMENDADO PRÓXIMA SESIÓN)
 
 **Problema actual:**
 - `/src/app/components/` tiene 52 componentes UI + 5 componentes custom
