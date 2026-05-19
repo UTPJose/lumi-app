@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router';
 import { WelcomePage } from '../features/auth/pages/WelcomePage';
 import { ProfileSetupPage } from '../features/auth/pages/ProfileSetupPage';
 import { InterestsPage } from '../features/profile/pages/InterestsPage';
+import { SavedRoutinesPage } from '../features/profile/pages/SavedRoutinesPage';
 import { HomePage } from '../features/routines/pages/HomePage';
 import { CreateRoutinePage } from '../features/routines/pages/CreateRoutinePage';
 import { QuestionsPage } from '../features/onboarding/pages/QuestionsPage';
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
   {
     path: '/interests',
     element: <InterestsPage />,
+  },
+  {
+    path: '/saved-routines',
+    element: <SavedRoutinesPage />,
   },
   {
     path: '/home',

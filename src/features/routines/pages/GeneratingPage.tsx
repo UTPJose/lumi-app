@@ -64,6 +64,7 @@ export function GeneratingPage() {
             completed: false,
           },
         ],
+        saved: false,
       };
 
       addRoutine(newRoutine);

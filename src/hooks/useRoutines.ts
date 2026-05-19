@@ -88,6 +88,22 @@ export function useRoutines() {
     return routine.activities.length;
   };
 
+  const toggleRoutineSaved = (routineId: string): void => {
+    const routine = getRoutineById(routineId);
+    if (!routine) return;
+
+    const updatedRoutine: Routine = {
+      ...routine,
+      saved: !routine.saved,
+    };
+
+    updateRoutine(routineId, updatedRoutine);
+  };
+
+  const getSavedRoutines = (): Routine[] => {
+    return routines.filter(r => r.saved);
+  };
+
   return {
     routines,
     setRoutines,
@@ -101,5 +117,7 @@ export function useRoutines() {
     deleteActivityFromRoutine,
     getCompletedActivitiesCount,
     getTotalActivitiesCount,
+    toggleRoutineSaved,
+    getSavedRoutines,
   };
 }
