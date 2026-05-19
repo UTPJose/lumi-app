@@ -1,0 +1,31 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Estilos adicionales para móvil y accesibilidad */
+* {
+  -webkit-tap-highlight-color: rgba(74, 144, 226, 0.1);
+  touch-action: manipulation;
+}
+
+/* Safe area para dispositivos con notch */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Mejoras para animaciones */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Asegurar que el contenedor principal ocupe toda la pantalla */
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
