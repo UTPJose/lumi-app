@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { User, Settings, LogOut, ChevronRight, Heart, Calendar } from 'lucide-react';
+import { User, Settings, LogOut, ChevronRight, Heart, Calendar, Bookmark } from 'lucide-react';
 import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { StatCard } from '../../../shared/components/cards/StatCard';
 import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
@@ -12,7 +12,8 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const { userName } = useUserProfile();
   const { userInterests } = useUserProfile();
-  const { routines } = useRoutines();
+  const { routines, getSavedRoutines } = useRoutines();
+  const savedRoutinesCount = getSavedRoutines().length;
 
   const handleLogout = () => {
     const confirmed = window.confirm('¿Estás seguro de que quieres cerrar sesión?');
@@ -42,15 +43,32 @@ export function ProfilePage() {
           label="Rutinas creadas"
         />
         <StatCard
-          icon={Heart}
+          icon={Bookmark}
           iconColor="bg-accent/30"
-          stat={userInterests.length}
-          label="Intereses"
+          stat={savedRoutinesCount}
+          label="Rutinas guardadas"
         />
       </div>
 
       <div className="space-y-3">
         <h2 className="mb-4">Configuración</h2>
+
+        <button
+          onClick={() => navigate('/saved-routines')}
+          className={`w-full min-h-[80px] p-5 ${CARD_STYLES.white} rounded-2xl flex items-center justify-between`}
+          aria-label="Ver mis rutinas guardadas"
+        >
+          <div className={`${FLEX.startCenter} gap-4`}>
+            <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Bookmark className="w-6 h-6 text-accent" aria-hidden="true" />
+            </div>
+            <div className="text-left">
+              <h3 className="text-xl mb-1">Rutinas guardadas</h3>
+              <p className="text-muted-foreground text-base">Ver mis rutinas favoritas</p>
+            </div>
+          </div>
+          <ChevronRight className="w-6 h-6 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+        </button>
 
         <button
           onClick={() => navigate('/interests')}

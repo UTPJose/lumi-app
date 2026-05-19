@@ -10,7 +10,7 @@ import { CARD_STYLES } from '@/styles/tailwind-constants';
 export function RoutineDetailPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { getRoutineById, toggleActivityCompleted, getCompletedActivitiesCount } = useRoutines();
+  const { getRoutineById, toggleActivityCompleted, getCompletedActivitiesCount, toggleRoutineSaved } = useRoutines();
 
   const routine = id ? getRoutineById(id) : null;
 
@@ -86,9 +86,22 @@ export function RoutineDetailPage() {
         <AccessibleButton onClick={() => navigate('/share')} variant="outline" icon={Share2}>
           Compartir
         </AccessibleButton>
-        <AccessibleButton onClick={() => {}} variant="secondary" icon={Heart}>
-          Guardar
-        </AccessibleButton>
+        <button
+          onClick={() => toggleRoutineSaved(id!)}
+          className={`w-full min-h-[60px] px-6 py-4 rounded-2xl border-2 transition-all active:scale-98 font-semibold flex items-center justify-center gap-2 ${
+            routine.saved
+              ? 'bg-accent text-accent-foreground border-accent hover:bg-accent/90'
+              : 'bg-white text-muted-foreground border-border hover:border-accent/50'
+          }`}
+          aria-label={routine.saved ? 'Desguardar rutina' : 'Guardar rutina como favorita'}
+          aria-pressed={routine.saved}
+        >
+          <Heart
+            className={`w-5 h-5 ${routine.saved ? 'fill-current' : ''}`}
+            aria-hidden="true"
+          />
+          <span>{routine.saved ? 'Guardada' : 'Guardar'}</span>
+        </button>
       </div>
 
       {progress === 100 && (

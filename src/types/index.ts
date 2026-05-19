@@ -11,6 +11,7 @@ export interface Routine {
   title: string;
   date: string;
   activities: Activity[];
+  saved: boolean;
 }
 
 export interface UserProfile {
