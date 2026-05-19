@@ -1,9 +1,9 @@
 import React from 'react';
 import { RoutineCard } from '../components/RoutineCard';
-import { PageLayout } from '../components/layouts/PageLayout';
+import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { AccessibleButton } from '../components/AccessibleButton';
+import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
 import { useRoutines } from '@/hooks/useRoutines';
 
 export function LibraryPage() {

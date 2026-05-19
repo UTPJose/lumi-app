@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { AccessibleButton } from '../components/AccessibleButton';
+import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
 import { CARD_STYLES } from '@/styles/tailwind-constants';
 
 export function WelcomePage() {

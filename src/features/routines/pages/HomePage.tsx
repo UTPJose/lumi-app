@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { Sparkles, Calendar } from 'lucide-react';
-import { PageLayout } from '../components/layouts/PageLayout';
-import { CardButton } from '../components/CardButton';
+import { PageLayout } from '../../../shared/components/layouts/PageLayout';
+import { CardButton } from '../../../shared/components/buttons/CardButton';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { CARD_STYLES } from '@/styles/tailwind-constants';
 

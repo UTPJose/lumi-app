@@ -1,5 +1,5 @@
 import React from 'react';
-import { BottomNavigation } from '../BottomNavigation';
+import { BottomNavigation } from '../navigation/BottomNavigation';
 import { PAGE_LAYOUT } from '@/styles/tailwind-constants';
 
 interface PageLayoutProps {

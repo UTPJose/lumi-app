@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { Home } from 'lucide-react';
-import { AccessibleButton } from '../components/AccessibleButton';
-import { PageLayout } from '../components/layouts/PageLayout';
+import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 
 export function NotFoundPage() {
   const navigate = useNavigate();

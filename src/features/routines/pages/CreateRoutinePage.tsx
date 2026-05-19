@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { MessageSquare, Mic } from 'lucide-react';
-import { CardButton } from '../components/CardButton';
-import { PageLayout } from '../components/layouts/PageLayout';
+import { CardButton } from '../../../shared/components/buttons/CardButton';
+import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 
 export function CreateRoutinePage() {
   const navigate = useNavigate();

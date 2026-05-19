@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Heart, Share2, ArrowLeft } from 'lucide-react';
 import { ActivityCard } from '../components/ActivityCard';
-import { AccessibleButton } from '../components/AccessibleButton';
-import { PageLayout } from '../components/layouts/PageLayout';
+import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { useRoutines } from '@/hooks/useRoutines';
 import { CARD_STYLES } from '@/styles/tailwind-constants';
 
