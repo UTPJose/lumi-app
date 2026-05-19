@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Plus, Trash2 } from 'lucide-react';
-import { AccessibleButton } from '../components/AccessibleButton';
-import { PageLayout } from '../components/layouts/PageLayout';
+import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { CARD_STYLES } from '@/styles/tailwind-constants';
 import { Reminder } from '@/types';
 

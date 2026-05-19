@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Mic, StopCircle } from 'lucide-react';
-import { AccessibleButton } from '../components/AccessibleButton';
-import { PageLayout } from '../components/layouts/PageLayout';
+import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { storage } from '@/lib/storage';
 import { CARD_STYLES } from '@/styles/tailwind-constants';
 

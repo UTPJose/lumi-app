@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { User, Settings, LogOut, ChevronRight, Heart, Calendar } from 'lucide-react';
-import { PageLayout } from '../components/layouts/PageLayout';
-import { StatCard } from '../components/StatCard';
-import { AccessibleButton } from '../components/AccessibleButton';
+import { PageLayout } from '../../../shared/components/layouts/PageLayout';
+import { StatCard } from '../../../shared/components/cards/StatCard';
+import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useRoutines } from '@/hooks/useRoutines';
 import { CARD_STYLES, FLEX } from '@/styles/tailwind-constants';
