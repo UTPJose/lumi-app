@@ -29,3 +29,55 @@
   min-height: 100vh;
   min-height: 100dvh;
 }
+
+/* Accessibility CSS Variables */
+:root {
+  --line-height: 1.6;
+  --letter-spacing: 0em;
+  --button-scale: 1;
+}
+
+/* Button size scaling based on accessibility level */
+[data-button-size="px-6 py-3"] {
+  --button-scale: 1;
+}
+
+[data-button-size="px-8 py-4"] {
+  --button-scale: 1.15;
+}
+
+[data-button-size="px-10 py-5"] {
+  --button-scale: 1.3;
+}
+
+/* Apply button scale to all interactive elements */
+button,
+a[role="button"],
+input[type="button"],
+input[type="submit"],
+[role="switch"],
+[role="checkbox"],
+[role="radio"] {
+  transform: scale(var(--button-scale));
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+
+/* Accessibility Modes */
+.inverted-colors {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.grayscale-mode {
+  filter: grayscale(1);
+}
+
+/* Apply letter spacing globally */
+body {
+  letter-spacing: var(--letter-spacing);
+}
+
+/* Apply line height to text elements */
+p, h1, h2, h3, h4, h5, h6, label, span {
+  line-height: var(--line-height);
+}
