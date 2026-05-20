@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Volume2 } from 'lucide-react';
 import { useAccessibility } from '../../context/AccessibilityContext';
 import { CARD_STYLES, TEXT } from '@/styles/tailwind-constants';
 
@@ -106,6 +106,30 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
             onChange={(level) => {
               const nextLevel = (level + 1) % 3;
               updateSetting('buttonSize', nextLevel);
+            }}
+          />
+
+          {/* Text-to-Speech Card */}
+          <AccessibilityCard
+            title="Lectura por voz"
+            description="Activa síntesis de voz"
+            levels={['Desactivada', 'Activada']}
+            currentLevel={settings.textToSpeech}
+            onChange={(level) => {
+              const nextLevel = (level + 1) % 2;
+              updateSetting('textToSpeech', nextLevel);
+            }}
+          />
+
+          {/* Voice Assistant Card */}
+          <AccessibilityCard
+            title="Asistente por voz"
+            description="Navega usando tu micrófono"
+            levels={['Desactivado', 'Activado']}
+            currentLevel={settings.voiceAssistant || 0}
+            onChange={(level) => {
+              const nextLevel = (level + 1) % 2;
+              updateSetting('voiceAssistant', nextLevel);
             }}
           />
 
