@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { X, Play } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 import { useAccessibility } from '../../context/AccessibilityContext';
 import { useSpeechSynthesis } from '../../../hooks/useSpeechSynthesis';
 import { CARD_STYLES, TEXT } from '@/styles/tailwind-constants';
@@ -11,29 +11,8 @@ interface AccessibilityPanelProps {
 
 export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps) {
   const { settings, updateSetting, resetSettings } = useAccessibility();
-  const { speak, isSpeaking, voicesCount } = useSpeechSynthesis();
-  const [currentHeading, setCurrentHeading] = useState<string>('');
+  const { voicesCount } = useSpeechSynthesis();
   const isEnabled = settings.textToSpeech === 1;
-
-  // Get current heading
-  useEffect(() => {
-    const updateHeading = () => {
-      const heading = document.querySelector('h1, h2');
-      if (heading?.textContent) {
-        setCurrentHeading(heading.textContent.trim());
-      }
-    };
-    updateHeading();
-    const observer = new MutationObserver(updateHeading);
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, []);
-
-  const handlePlayHeading = useCallback(() => {
-    if (currentHeading) {
-      speak(currentHeading);
-    }
-  }, [currentHeading, speak]);
 
   // Close on escape
   useEffect(() => {
@@ -99,7 +78,7 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
 
           {/* Dyslexia Friendly Card */}
           <AccessibilityCard
-            title="Fuente amigable para dislexia"
+            title="Tipado para dislexia"
             description="Aumenta el espacio entre letras"
             levels={['Normal', 'Separado', 'Muy separado']}
             currentLevel={settings.dyslexiaFriendly}
@@ -143,11 +122,11 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
           >
             <h3 className="text-xl font-bold mb-2">Lectura por voz</h3>
             <p className="text-muted-foreground mb-4">
-              {isEnabled ? `Voces disponibles: ${voicesCount}` : 'Presiona para activar'}
+              {isEnabled ? `Voces disponibles: ${voicesCount}` : 'Desactivada'}
             </p>
 
             {/* Level indicator */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3">
               <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all"
@@ -160,21 +139,6 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
                 {settings.textToSpeech === 0 ? 'Desactivada' : 'Activada'}
               </span>
             </div>
-
-            {isEnabled && voicesCount > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePlayHeading();
-                }}
-                disabled={isSpeaking}
-                className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-xl hover:bg-primary/90 disabled:bg-primary/50 transition-colors active:scale-95 flex items-center justify-center gap-2"
-                aria-label="Reproducir lectura por voz"
-              >
-                <Play size={20} fill="currentColor" />
-                {isSpeaking ? 'Reproduciendo...' : 'Reproducir'}
-              </button>
-            )}
           </button>
 
           {/* Voice Assistant Card */}
