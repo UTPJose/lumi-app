@@ -129,7 +129,7 @@ interface CommandMatch {
 
 export function findBestMatch(transcript: string, commands: VoiceCommand[]): CommandMatch | null {
   const normalizedTranscript = normalizeText(transcript);
-  const words = normalizedTranscript.split(/\s+/);
+  const transcriptWords = normalizedTranscript.split(/\s+/);
 
   let bestMatch: CommandMatch | null = null;
 
@@ -139,24 +139,24 @@ export function findBestMatch(transcript: string, commands: VoiceCommand[]): Com
 
       if (keyword === normalizedTranscript) {
         confidence = 1.0;
-      } else if (normalizedTranscript.includes(keyword)) {
+      } else if (normalizedTranscript.includes(keyword) || keyword.includes(normalizedTranscript)) {
         confidence = 0.9;
       } else {
-        const distance = levenshteinDistance(normalizedTranscript, keyword);
-        const maxLength = Math.max(normalizedTranscript.length, keyword.length);
-        confidence = Math.max(0, 1 - distance / (maxLength * 0.5));
+        const keywordWords = keyword.split(/\s+/);
+        const matchedWords = transcriptWords.filter((word) =>
+          keywordWords.some((kw) => kw.includes(word) || word.includes(kw))
+        );
 
-        if (confidence < 0.6) confidence = 0;
-      }
-
-      for (const word of words) {
-        if (word.length > 2 && keyword.includes(word)) {
-          confidence = Math.min(1.0, confidence + 0.1);
-          break;
+        if (matchedWords.length > 0) {
+          confidence = (matchedWords.length / keywordWords.length) * 0.8;
+        } else {
+          const distance = levenshteinDistance(normalizedTranscript, keyword);
+          const maxLength = Math.max(normalizedTranscript.length, keyword.length);
+          confidence = Math.max(0, 1 - distance / (maxLength * 0.3));
         }
       }
 
-      if (confidence > 0.5) {
+      if (confidence > 0.6) {
         if (!bestMatch || confidence > bestMatch.confidence) {
           bestMatch = { command, confidence };
         }
