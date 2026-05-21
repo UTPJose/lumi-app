@@ -7,11 +7,7 @@ declare global {
 
 import { useEffect, useRef, useState } from 'react';
 import { useAccessibility } from '../shared/context/AccessibilityContext';
-
-interface VoiceCommand {
-  text: string;
-  element: HTMLElement | null;
-}
+import { extractVoiceCommands, findBestMatch } from '../utils/voiceCommandExtractor';
 
 export function useVoiceAssistant() {
   const { settings } = useAccessibility();
@@ -37,7 +33,7 @@ export function useVoiceAssistant() {
     recognition.lang = 'es-ES';
 
     recognition.onstart = () => {
-      console.log('Voice Assistant: Listening...');
+      console.log('🎤 Voice Assistant: Listening...');
       setIsListening(true);
       interimTranscriptRef.current = '';
     };
@@ -47,7 +43,7 @@ export function useVoiceAssistant() {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          handleVoiceCommand(transcript.toLowerCase());
+          handleVoiceCommand(transcript);
           setTranscript(transcript);
         } else {
           interim += transcript;
@@ -57,12 +53,11 @@ export function useVoiceAssistant() {
     };
 
     recognition.onerror = (event: any) => {
-      console.error('Voice error:', event.error);
+      console.error('🎤 Voice error:', event.error);
     };
 
     recognition.onend = () => {
       setIsListening(false);
-      // Reinicia automáticamente si sigue activado
       if (settings.voiceAssistant) {
         setTimeout(() => recognition.start(), 1000);
       }
@@ -78,30 +73,45 @@ export function useVoiceAssistant() {
   }, [settings.voiceAssistant]);
 
   const handleVoiceCommand = (command: string) => {
-    console.log('Voice command:', command);
+    console.log('🎤 Voice transcript:', command);
 
-    // Comandos comunes
-    if (command.includes('siguiente') || command.includes('next')) {
+    const pageCommands = extractVoiceCommands();
+    const match = findBestMatch(command, pageCommands);
+
+    if (match && match.confidence > 0.6) {
+      console.log(`✅ Matched command with confidence ${(match.confidence * 100).toFixed(1)}%:`, match.command.keywords[0]);
+      match.command.action();
+      return;
+    }
+
+    handleFallbackCommands(command);
+  };
+
+  const handleFallbackCommands = (command: string) => {
+    const lowerCommand = command.toLowerCase();
+
+    if (lowerCommand.includes('siguiente') || lowerCommand.includes('next')) {
       focusNextElement();
-    } else if (command.includes('anterior') || command.includes('previous')) {
+    } else if (lowerCommand.includes('anterior') || lowerCommand.includes('previous')) {
       focusPrevElement();
-    } else if (command.includes('click') || command.includes('seleccionar') || command.includes('activar')) {
+    } else if (
+      lowerCommand.includes('click') ||
+      lowerCommand.includes('seleccionar') ||
+      lowerCommand.includes('activar')
+    ) {
       const focused = document.activeElement as HTMLElement;
       if (focused) focused.click();
-    } else if (command.includes('abrir') || command.includes('accesibilidad')) {
-      const a11yButton = document.querySelector('[aria-label*="accesibilidad"]') as HTMLElement;
-      if (a11yButton) a11yButton.click();
-    } else if (command.includes('cerrar')) {
+    } else if (lowerCommand.includes('cerrar')) {
       const closeButton = document.querySelector('[aria-label*="Cerrar"]') as HTMLElement;
       if (closeButton) closeButton.click();
+    } else {
+      console.log('❌ No matching command found');
     }
   };
 
   const focusNextElement = () => {
     const focusableElements = Array.from(
-      document.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
+      document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
     ) as HTMLElement[];
 
     const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
@@ -111,9 +121,7 @@ export function useVoiceAssistant() {
 
   const focusPrevElement = () => {
     const focusableElements = Array.from(
-      document.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
+      document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
     ) as HTMLElement[];
 
     const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
