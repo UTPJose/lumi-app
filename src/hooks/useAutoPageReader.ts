@@ -3,29 +3,22 @@ import { useLocation } from 'react-router';
 import { useAccessibility } from '../shared/context/AccessibilityContext';
 import { useTextToSpeech } from './useTextToSpeech';
 
-const INACTIVITY_TIMEOUT = 15000; // 15 seconds
+// 1. Cambiamos el tiempo de espera a 40 segundos (40,000 milisegundos)
+const INACTIVITY_TIMEOUT = 25000; 
 
 export function useAutoPageReader() {
   const { settings } = useAccessibility();
-  const { speak, stop, isSpeaking } = useTextToSpeech();
+  const { speak, stop } = useTextToSpeech();
   const location = useLocation();
-  const lastReadContentRef = useRef<string>('');
-  const lastReadTimeRef = useRef<number>(0);
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const observerRef = useRef<MutationObserver | null>(null);
 
-  // Extract all readable text from the page
+  // Extrae el texto limpio de la página
   const extractPageContent = useCallback(() => {
     const textParts: string[] = [];
 
-    // Get main heading (h1 or h2)
-    const heading = document.querySelector('h1, h2');
-    if (heading?.textContent?.trim()) {
-      textParts.push(heading.textContent.trim());
-    }
+    // ❌ Se eliminó la captura manual del H1/H2 que causaba la doble lectura.
+    // Ahora solo usamos el TreeWalker que respeta el orden natural de la página.
 
-    // Get all visible text content from main content area
-    // Exclude navigation, buttons, and accessibility panel
     const mainContent = document.body;
     const walker = document.createTreeWalker(
       mainContent,
@@ -35,13 +28,13 @@ export function useAutoPageReader() {
           const parent = node.parentElement;
           if (!parent) return NodeFilter.FILTER_REJECT;
 
-          // Exclude hidden elements
+          // Ignorar elementos ocultos
           const style = window.getComputedStyle(parent);
           if (style.display === 'none' || style.visibility === 'hidden') {
             return NodeFilter.FILTER_REJECT;
           }
 
-          // Exclude accessibility panel and similar modals
+          // Ignorar el propio panel de accesibilidad o ventanas emergentes
           if (
             parent.closest('[role="dialog"]') ||
             parent.closest('.z-50') ||
@@ -67,7 +60,7 @@ export function useAutoPageReader() {
       }
     }
 
-    // Also get aria-label and title attributes from interactive elements
+    // Obtener etiquetas ocultas (aria-label) de botones/inputs solo si no están ya leídas
     const interactiveElements = document.querySelectorAll(
       'button, [role="button"], input, select, textarea, a'
     );
@@ -80,22 +73,15 @@ export function useAutoPageReader() {
       }
     });
 
-    // Join with pauses (periods indicate where to pause)
     return textParts.filter((p) => p && p.length > 0).join('. ');
   }, []);
 
-  // Read the page content
+  // Función principal que manda a hablar
   const readPage = useCallback(() => {
     if (settings.textToSpeech === 0) return;
 
     const content = extractPageContent();
     if (!content) return;
-
-    // Avoid reading the same content twice in a row
-    if (content === lastReadContentRef.current) return;
-
-    lastReadContentRef.current = content;
-    lastReadTimeRef.current = Date.now();
 
     console.log('🎤 Auto-reading page content');
     stop();
@@ -104,23 +90,21 @@ export function useAutoPageReader() {
     }, 150);
   }, [settings.textToSpeech, extractPageContent, speak, stop]);
 
-  // Reset inactivity timer on user interaction
+  // Reinicia el reloj de 40 segundos
   const resetInactivityTimer = useCallback(() => {
     if (settings.textToSpeech === 0) return;
 
-    // Clear existing timer
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
     }
 
-    // Set new timer for 15 seconds
     inactivityTimerRef.current = setTimeout(() => {
-      console.log('⏱️ 15 seconds of inactivity detected, re-reading page');
+      console.log('⏱️ 25 seconds of inactivity detected, re-reading page');
       readPage();
     }, INACTIVITY_TIMEOUT);
   }, [settings.textToSpeech, readPage]);
 
-  // Add event listeners for user interaction
+  // Escuchar interacciones SOLO para reiniciar el reloj de 40s (sin volver a leer al instante)
   useEffect(() => {
     if (settings.textToSpeech === 0) return;
 
@@ -140,9 +124,10 @@ export function useAutoPageReader() {
     };
   }, [settings.textToSpeech, resetInactivityTimer]);
 
-  // Read page on mount and on page/location change
+  // Disparador principal: Cuando cambias de página o ENCIENDES el interruptor
   useEffect(() => {
     if (settings.textToSpeech === 0) {
+      // Si se apaga, detiene la voz inmediatamente
       stop();
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current);
@@ -150,59 +135,21 @@ export function useAutoPageReader() {
       return;
     }
 
-    // Small delay to ensure DOM is ready
+    // Le da un pequeñísimo respiro de medio segundo al navegador y lee
     const timer = setTimeout(() => {
-      // Limpiamos el último texto leído para forzar que lea la nueva página
-      lastReadContentRef.current = '';
       readPage();
       resetInactivityTimer();
-    }, 600);
+    }, 500);
 
     return () => clearTimeout(timer);
-  }, [location.pathname, settings.textToSpeech]);
+  }, [location.pathname, settings.textToSpeech]); 
 
-  // Listen for DOM mutations (for dynamic content within same page)
-  useEffect(() => {
-    if (settings.textToSpeech === 0) {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-      return;
-    }
-
-    const observer = new MutationObserver(() => {
-      // Only read if content has changed and more than 2 seconds have passed
-      const now = Date.now();
-      if (now - lastReadTimeRef.current > 2000) {
-        const currentContent = extractPageContent();
-        if (currentContent !== lastReadContentRef.current) {
-          readPage();
-          resetInactivityTimer();
-        }
-      }
-    });
-
-    observerRef.current = observer;
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: false,
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [settings.textToSpeech, extractPageContent, readPage, resetInactivityTimer]);
-
-  // Cleanup on unmount
+  // Limpieza de seguridad al cerrar el componente
   useEffect(() => {
     return () => {
       stop();
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current);
-      }
-      if (observerRef.current) {
-        observerRef.current.disconnect();
       }
     };
   }, [stop]);
