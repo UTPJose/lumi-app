@@ -68,11 +68,6 @@ export function useVoiceAssistant() {
 
       recognition.onerror = (event: any) => {
         console.error('🎤 Voice error:', event.error);
-        if (event.error === 'aborted' || event.error === 'no-speech') {
-          if (shouldRestartRef.current) {
-            setTimeout(startRecognition, 500);
-          }
-        }
       };
 
       recognition.onend = () => {
