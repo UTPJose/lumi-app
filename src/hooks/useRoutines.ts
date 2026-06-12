@@ -18,6 +18,10 @@ export function useRoutines() {
     setRoutines(routines.filter(r => r.id !== id));
   };
 
+  const deleteMultipleRoutines = (ids: string[]): void => {
+    setRoutines(routines.filter(r => !ids.includes(r.id)));
+  };
+
   const getRoutineById = (id: string): Routine | undefined => {
     return routines.find(r => r.id === id);
   };
@@ -122,6 +126,7 @@ export function useRoutines() {
     addRoutine,
     updateRoutine,
     deleteRoutine,
+    deleteMultipleRoutines,
     getRoutineById,
     toggleActivityCompleted,
     updateActivity,

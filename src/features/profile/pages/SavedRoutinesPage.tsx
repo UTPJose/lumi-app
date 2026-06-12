@@ -8,7 +8,7 @@ import { useRoutines } from '@/hooks/useRoutines';
 
 export function SavedRoutinesPage() {
   const navigate = useNavigate();
-  const { getSavedRoutines } = useRoutines();
+  const { getSavedRoutines, deleteRoutine } = useRoutines();
   const savedRoutines = getSavedRoutines();
 
   return (
@@ -44,6 +44,7 @@ export function SavedRoutinesPage() {
               title={routine.title}
               date={routine.date}
               activities={routine.activities.length}
+              onDelete={() => deleteRoutine(routine.id)}
             />
           ))}
         </div>
