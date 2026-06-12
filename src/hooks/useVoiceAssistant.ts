@@ -10,14 +10,23 @@ import { useAccessibility } from '../shared/context/AccessibilityContext';
 import { extractVoiceCommands, findBestMatch } from '../utils/voiceCommandExtractor';
 
 export function useVoiceAssistant() {
-  const { settings } = useAccessibility();
+  const { settings, voiceAssistantMuted } = useAccessibility();
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
   const interimTranscriptRef = useRef('');
 
   useEffect(() => {
-    if (!settings.voiceAssistant) return;
+    // Don't start if disabled or muted
+    if (!settings.voiceAssistant || voiceAssistantMuted) {
+      // Stop if currently running
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+        setIsListening(false);
+      }
+      return;
+    }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -58,7 +67,7 @@ export function useVoiceAssistant() {
 
     recognition.onend = () => {
       setIsListening(false);
-      if (settings.voiceAssistant) {
+      if (settings.voiceAssistant && !voiceAssistantMuted) {
         setTimeout(() => recognition.start(), 1000);
       }
     };
@@ -70,7 +79,7 @@ export function useVoiceAssistant() {
         recognitionRef.current.stop();
       }
     };
-  }, [settings.voiceAssistant]);
+  }, [settings.voiceAssistant, voiceAssistantMuted]);
 
   // Función mejorada para inyectar texto (ahora soporta sobreescribir completamente)
   const injectTextToInput = (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Mic, StopCircle, Trash2 } from "lucide-react";
 import { AccessibleButton } from "../../../shared/components/buttons/AccessibleButton";
@@ -6,9 +6,11 @@ import { PageLayout } from "../../../shared/components/layouts/PageLayout";
 import { storage } from "@/lib/storage";
 import { CARD_STYLES } from "@/styles/tailwind-constants";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
+import { useAccessibility } from "@/shared/context/AccessibilityContext";
 
 export function VoiceInputPage() {
   const navigate = useNavigate();
+  const { muteVoiceAssistant, unmuteVoiceAssistant } = useAccessibility();
   const {
     isRecording,
     transcript,
@@ -19,6 +21,14 @@ export function VoiceInputPage() {
     stopRecording,
     clearTranscript,
   } = useVoiceRecorder();
+
+  // Mute voice assistant when entering this page (if it was enabled)
+  useEffect(() => {
+    muteVoiceAssistant();
+    return () => {
+      unmuteVoiceAssistant();
+    };
+  }, []);
 
   const handleToggleRecording = () => {
     if (isRecording) {
@@ -31,6 +41,7 @@ export function VoiceInputPage() {
   const handleContinue = () => {
     if (transcript) {
       storage.set("voiceInput", transcript);
+      unmuteVoiceAssistant();
       navigate("/create/generating");
     }
   };
@@ -139,7 +150,10 @@ export function VoiceInputPage() {
         )}
 
         <AccessibleButton
-          onClick={() => navigate("/create")}
+          onClick={() => {
+            unmuteVoiceAssistant();
+            navigate("/create");
+          }}
           variant="outline"
           fullWidth
         >

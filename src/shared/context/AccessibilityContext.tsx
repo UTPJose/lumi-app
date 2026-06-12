@@ -17,6 +17,9 @@ interface AccessibilityContextType {
     value: AccessibilitySettings[K]
   ) => void;
   resetSettings: () => void;
+  voiceAssistantMuted: boolean;
+  muteVoiceAssistant: () => void;
+  unmuteVoiceAssistant: () => void;
 }
 
 const DEFAULT_SETTINGS: AccessibilitySettings = {
@@ -34,6 +37,7 @@ const AccessibilityContext = createContext<AccessibilityContextType | undefined>
 export function AccessibilityProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AccessibilitySettings>(DEFAULT_SETTINGS);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [voiceAssistantMuted, setVoiceAssistantMuted] = useState(false);
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -108,8 +112,18 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     setSettings(DEFAULT_SETTINGS);
   };
 
+  const muteVoiceAssistant = () => setVoiceAssistantMuted(true);
+  const unmuteVoiceAssistant = () => setVoiceAssistantMuted(false);
+
   return (
-    <AccessibilityContext.Provider value={{ settings, updateSetting, resetSettings }}>
+    <AccessibilityContext.Provider value={{
+      settings,
+      updateSetting,
+      resetSettings,
+      voiceAssistantMuted,
+      muteVoiceAssistant,
+      unmuteVoiceAssistant,
+    }}>
       {children}
     </AccessibilityContext.Provider>
   );
