@@ -22,6 +22,12 @@ export interface StorageTypes {
     age: number;
     interests: string[];
   };
+  reminders: Array<{
+    id: string;
+    title: string;
+    time: string;
+    completed: boolean;
+  }>;
 }
 
 // Centralized localStorage manager with type safety

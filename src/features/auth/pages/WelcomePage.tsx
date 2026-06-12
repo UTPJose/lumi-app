@@ -3,9 +3,23 @@ import { Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
 import { CARD_STYLES } from '@/styles/tailwind-constants';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 export function WelcomePage() {
   const navigate = useNavigate();
+  const { userName, userAge } = useUserProfile();
+
+  const hasCompletedOnboarding = userName && userName !== 'Usuario' && userAge > 0;
+
+  React.useEffect(() => {
+    if (hasCompletedOnboarding) {
+      navigate('/home', { replace: true });
+    }
+  }, [hasCompletedOnboarding, navigate]);
+
+  if (hasCompletedOnboarding) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary to-white flex flex-col items-center justify-center px-6 pb-20">
