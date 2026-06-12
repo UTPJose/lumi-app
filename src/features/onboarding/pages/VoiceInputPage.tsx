@@ -1,14 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import { Mic, StopCircle, Trash2 } from "lucide-react";
+import { Mic, StopCircle, Trash2, AlertTriangle } from "lucide-react";
 import { AccessibleButton } from "../../../shared/components/buttons/AccessibleButton";
 import { PageLayout } from "../../../shared/components/layouts/PageLayout";
 import { storage } from "@/lib/storage";
 import { CARD_STYLES } from "@/styles/tailwind-constants";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
+import { useAccessibility } from "@/shared/context/AccessibilityContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/shared/components/ui/dialog";
 
 export function VoiceInputPage() {
   const navigate = useNavigate();
+  const { settings } = useAccessibility();
+  const [showConflictModal, setShowConflictModal] = useState(false);
   const {
     isRecording,
     transcript,
@@ -24,6 +35,10 @@ export function VoiceInputPage() {
     if (isRecording) {
       stopRecording();
     } else {
+      if (settings.voiceAssistant === 1) {
+        setShowConflictModal(true);
+        return;
+      }
       startRecording();
     }
   };
@@ -146,6 +161,31 @@ export function VoiceInputPage() {
           Volver
         </AccessibleButton>
       </div>
+
+      <Dialog open={showConflictModal} onOpenChange={setShowConflictModal}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              Navegación por voz activa
+            </DialogTitle>
+            <DialogDescription>
+              Por el momento no está disponible el tocar para hablar mientras
+              está activada la navegación por voz. Por favor, desactiva la
+              navegación por voz primero en la configuración de accesibilidad.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <AccessibleButton
+              onClick={() => setShowConflictModal(false)}
+              variant="primary"
+              fullWidth
+            >
+              Entendido
+            </AccessibleButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   );
 }
