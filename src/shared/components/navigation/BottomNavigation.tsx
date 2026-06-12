@@ -13,8 +13,8 @@ export function BottomNavigation() {
     { icon: Library, label: 'Rutinas', path: '/library' },
     { icon: Plus, label: 'Nueva', path: '/create' },
     { icon: Bell, label: 'Recordatorios', path: '/reminders' },
-    { icon: User, label: 'Perfil', path: '/profile' },
     { icon: PersonStanding, label: 'Accesibilidad', path: null },
+    { icon: User, label: 'Perfil', path: '/profile' },
   ];
   
   return (

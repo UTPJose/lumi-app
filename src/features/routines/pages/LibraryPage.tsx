@@ -4,6 +4,7 @@ import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { Plus, Search, ArrowUpDown, X, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { ConfirmDialog } from '../../../shared/components/ui/confirm-dialog';
 import { useRoutines } from '@/hooks/useRoutines';
 import { INPUT_STYLES } from '@/styles/tailwind-constants';
 import { Routine } from '@/types';
@@ -44,6 +45,8 @@ export function LibraryPage() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'multiple'; id?: string; name?: string } | null>(null);
 
   const filteredRoutines = useMemo(() => {
     let result = [...routines];
@@ -104,13 +107,25 @@ export function LibraryPage() {
   };
 
   const handleDeleteSelected = () => {
-    deleteMultipleRoutines(selectedIds);
-    setSelectedIds([]);
-    setIsSelectMode(false);
+    setDeleteTarget({ type: 'multiple' });
+    setDeleteDialogOpen(true);
   };
 
-  const handleDeleteSingle = (id: string) => {
-    deleteRoutine(id);
+  const handleDeleteSingle = (id: string, name: string) => {
+    setDeleteTarget({ type: 'single', id, name });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === 'single' && deleteTarget.id) {
+      deleteRoutine(deleteTarget.id);
+    } else if (deleteTarget.type === 'multiple') {
+      deleteMultipleRoutines(selectedIds);
+      setSelectedIds([]);
+      setIsSelectMode(false);
+    }
+    setDeleteTarget(null);
   };
 
   return (
@@ -295,7 +310,7 @@ export function LibraryPage() {
                   isSelectMode={isSelectMode}
                   isSelected={selectedIds.includes(routine.id)}
                   onToggleSelect={() => handleToggleSelect(routine.id)}
-                  onDelete={() => handleDeleteSingle(routine.id)}
+                  onDelete={() => handleDeleteSingle(routine.id, routine.title)}
                 />
               ))}
             </div>
@@ -324,6 +339,17 @@ export function LibraryPage() {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => { setDeleteDialogOpen(false); setDeleteTarget(null); }}
+        onConfirm={handleConfirmDelete}
+        title={deleteTarget?.type === 'single' ? 'Eliminar rutina' : 'Eliminar rutinas'}
+        message={deleteTarget?.type === 'single' 
+          ? `¿Estás seguro de que quieres eliminar "${deleteTarget.name}"?`
+          : `¿Estás seguro de que quieres eliminar ${selectedIds.length} rutina${selectedIds.length > 1 ? 's' : ''}?`
+        }
+      />
     </PageLayout>
   );
 }

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { User, Settings, LogOut, ChevronRight, Heart, Calendar, Bookmark } from 'lucide-react';
 import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { StatCard } from '../../../shared/components/cards/StatCard';
 import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { ConfirmDialog } from '../../../shared/components/ui/confirm-dialog';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useRoutines } from '@/hooks/useRoutines';
 import { CARD_STYLES, FLEX } from '@/styles/tailwind-constants';
@@ -14,13 +15,11 @@ export function ProfilePage() {
   const { userInterests } = useUserProfile();
   const { routines, getSavedRoutines } = useRoutines();
   const savedRoutinesCount = getSavedRoutines().length;
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   const handleLogout = () => {
-    const confirmed = window.confirm('¿Estás seguro de que quieres cerrar sesión?');
-    if (confirmed) {
-      localStorage.clear();
-      navigate('/');
-    }
+    localStorage.clear();
+    navigate('/');
   };
 
   return (
@@ -107,7 +106,7 @@ export function ProfilePage() {
 
       <div className="pt-4">
         <AccessibleButton
-          onClick={handleLogout}
+          onClick={() => setIsLogoutDialogOpen(true)}
           variant="destructive"
           fullWidth
           icon={LogOut}
@@ -116,6 +115,15 @@ export function ProfilePage() {
           Cerrar sesión
         </AccessibleButton>
       </div>
+
+      <ConfirmDialog
+        isOpen={isLogoutDialogOpen}
+        onClose={() => setIsLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
+        title="Cerrar sesión"
+        message="¿Estás seguro de que quieres cerrar sesión?"
+        confirmLabel="Cerrar sesión"
+      />
 
       <div className="bg-muted/50 p-6 rounded-2xl border-2 border-border text-center space-y-2">
         <p className="text-muted-foreground text-base">Versión 1.0.0</p>

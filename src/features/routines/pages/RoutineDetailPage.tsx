@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { Heart, Share2, ArrowLeft, Plus, Trash2, Pencil, X, Check } from 'lucide-react';
 import { ActivityCard } from '../components/ActivityCard';
 import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { ConfirmDialog } from '../../../shared/components/ui/confirm-dialog';
 import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { useRoutines } from '@/hooks/useRoutines';
 import { CARD_STYLES, INPUT_STYLES } from '@/styles/tailwind-constants';
@@ -43,6 +44,8 @@ export function RoutineDetailPage() {
   const [newTime, setNewTime] = useState('8:00 AM');
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'multiple'; id?: string; name?: string } | null>(null);
 
   if (!routine) {
     return (
@@ -77,9 +80,25 @@ export function RoutineDetailPage() {
   };
 
   const handleDeleteSelected = () => {
-    deleteMultipleActivities(id!, selectedIds);
-    setSelectedIds([]);
-    setIsSelectMode(false);
+    setDeleteTarget({ type: 'multiple' });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteSingle = (activityId: string, activityTitle: string) => {
+    setDeleteTarget({ type: 'single', id: activityId, name: activityTitle });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === 'single' && deleteTarget.id) {
+      deleteActivityFromRoutine(id!, deleteTarget.id);
+    } else if (deleteTarget.type === 'multiple') {
+      deleteMultipleActivities(id!, selectedIds);
+      setSelectedIds([]);
+      setIsSelectMode(false);
+    }
+    setDeleteTarget(null);
   };
 
   const handleStartEdit = (activity: Activity) => {
@@ -325,7 +344,7 @@ export function RoutineDetailPage() {
                   isSelected={selectedIds.includes(activity.id)}
                   onToggleSelect={() => handleToggleSelect(activity.id)}
                   onEdit={() => handleStartEdit(activity)}
-                  onDelete={() => deleteActivityFromRoutine(id!, activity.id)}
+                  onDelete={() => handleDeleteSingle(activity.id, activity.title)}
                 />
               )
             ))}
@@ -380,6 +399,17 @@ export function RoutineDetailPage() {
           <p className="text-muted-foreground">Completaste todas las actividades del día. ¡Excelente trabajo!</p>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => { setDeleteDialogOpen(false); setDeleteTarget(null); }}
+        onConfirm={handleConfirmDelete}
+        title={deleteTarget?.type === 'single' ? 'Eliminar actividad' : 'Eliminar actividades'}
+        message={deleteTarget?.type === 'single' 
+          ? `¿Estás seguro de que quieres eliminar "${deleteTarget.name}"?`
+          : `¿Estás seguro de que quieres eliminar ${selectedIds.length} actividad${selectedIds.length > 1 ? 'es' : ''}?`
+        }
+      />
     </PageLayout>
   );
 }

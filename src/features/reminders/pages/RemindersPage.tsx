@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Plus, Trash2, Pencil, X, Check } from 'lucide-react';
 import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { ConfirmDialog } from '../../../shared/components/ui/confirm-dialog';
 import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { CARD_STYLES, INPUT_STYLES } from '@/styles/tailwind-constants';
 import { useReminders } from '@/hooks/useReminders';
@@ -19,6 +20,8 @@ export function RemindersPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isSelectMode, setIsSelectMode] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'multiple'; id?: string; name?: string } | null>(null);
 
   const [newTitle, setNewTitle] = useState('');
   const [newTime, setNewTime] = useState('8:00 AM');
@@ -77,9 +80,25 @@ export function RemindersPage() {
   };
 
   const handleDeleteSelected = () => {
-    deleteMultiple(selectedIds);
-    setSelectedIds([]);
-    setIsSelectMode(false);
+    setDeleteTarget({ type: 'multiple' });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteSingle = (id: string, name: string) => {
+    setDeleteTarget({ type: 'single', id, name });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === 'single' && deleteTarget.id) {
+      deleteReminder(deleteTarget.id);
+    } else if (deleteTarget.type === 'multiple') {
+      deleteMultiple(selectedIds);
+      setSelectedIds([]);
+      setIsSelectMode(false);
+    }
+    setDeleteTarget(null);
   };
 
   const handleToggleSelected = () => {
@@ -298,7 +317,7 @@ export function RemindersPage() {
                       <Pencil className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => deleteReminder(reminder.id)}
+                      onClick={() => handleDeleteSingle(reminder.id, reminder.title)}
                       className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
                       aria-label={`Eliminar recordatorio de ${reminder.time}`}
                     >
@@ -330,6 +349,17 @@ export function RemindersPage() {
           </AccessibleButton>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => { setDeleteDialogOpen(false); setDeleteTarget(null); }}
+        onConfirm={handleConfirmDelete}
+        title={deleteTarget?.type === 'single' ? 'Eliminar recordatorio' : 'Eliminar recordatorios'}
+        message={deleteTarget?.type === 'single' 
+          ? `¿Estás seguro de que quieres eliminar "${deleteTarget.name}"?`
+          : `¿Estás seguro de que quieres eliminar ${selectedIds.length} recordatorio${selectedIds.length > 1 ? 's' : ''}?`
+        }
+      />
     </PageLayout>
   );
 }

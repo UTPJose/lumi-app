@@ -1,15 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { RoutineCard } from '../../routines/components/RoutineCard';
 import { PageLayout } from '../../../shared/components/layouts/PageLayout';
 import { Plus, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
+import { ConfirmDialog } from '../../../shared/components/ui/confirm-dialog';
 import { useRoutines } from '@/hooks/useRoutines';
 
 export function SavedRoutinesPage() {
   const navigate = useNavigate();
   const { getSavedRoutines, deleteRoutine } = useRoutines();
   const savedRoutines = getSavedRoutines();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const handleDeleteSingle = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget) {
+      deleteRoutine(deleteTarget.id);
+      setDeleteTarget(null);
+    }
+  };
 
   return (
     <PageLayout>
@@ -44,11 +59,19 @@ export function SavedRoutinesPage() {
               title={routine.title}
               date={routine.date}
               activities={routine.activities.length}
-              onDelete={() => deleteRoutine(routine.id)}
+              onDelete={() => handleDeleteSingle(routine.id, routine.title)}
             />
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => { setDeleteDialogOpen(false); setDeleteTarget(null); }}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar rutina"
+        message={`¿Estás seguro de que quieres eliminar "${deleteTarget?.name}"?`}
+      />
     </PageLayout>
   );
 }
