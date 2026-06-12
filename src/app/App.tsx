@@ -1,7 +1,6 @@
 import { RouterProvider } from 'react-router';
 import { router } from './routes';
 import { AccessibilityProvider } from '../shared/context/AccessibilityContext';
-import { AccessibilityButton } from '../shared/components/accessibility/AccessibilityButton';
 import { VoiceAssistantManager } from '../shared/components/accessibility/VoiceAssistantManager';
 
 function AppContent() {
@@ -9,7 +8,6 @@ function AppContent() {
     <>
       <VoiceAssistantManager />
       <RouterProvider router={router} />
-      <AccessibilityButton />
     </>
   );
 }
