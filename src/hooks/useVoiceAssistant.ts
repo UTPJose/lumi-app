@@ -15,25 +15,32 @@ export function useVoiceAssistant() {
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
   const interimTranscriptRef = useRef('');
+  const enabledRef = useRef(false);
 
   useEffect(() => {
-    if (!settings.voiceAssistant) return;
+    enabledRef.current = !!settings.voiceAssistant;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.warn('Speech Recognition not supported');
+    if (!settings.voiceAssistant) {
+      // Force stop any running recognition
+      if (recognitionRef.current) {
+        recognitionRef.current.onend = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+      setIsListening(false);
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
 
+    const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'es-ES';
 
     recognition.onstart = () => {
-      console.log('🎤 Voice Assistant: Listening...');
       setIsListening(true);
       interimTranscriptRef.current = '';
     };
@@ -52,23 +59,44 @@ export function useVoiceAssistant() {
       interimTranscriptRef.current = interim;
     };
 
-    recognition.onerror = (event: any) => {
-      console.error('🎤 Voice error:', event.error);
-    };
+    recognition.onerror = () => {};
 
     recognition.onend = () => {
       setIsListening(false);
-      if (settings.voiceAssistant) {
-        setTimeout(() => recognition.start(), 1000);
+      recognitionRef.current = null;
+      // Only restart if still enabled
+      if (enabledRef.current) {
+        setTimeout(() => {
+          if (enabledRef.current) {
+            try {
+              const newRec = new SpeechRecognition();
+              recognitionRef.current = newRec;
+              newRec.continuous = true;
+              newRec.interimResults = true;
+              newRec.lang = 'es-ES';
+              newRec.onstart = recognition.onstart;
+              newRec.onresult = recognition.onresult;
+              newRec.onerror = recognition.onerror;
+              newRec.onend = recognition.onend;
+              newRec.start();
+            } catch {}
+          }
+        }, 1000);
       }
     };
 
+    recognitionRef.current = recognition;
     recognition.start();
 
     return () => {
+      enabledRef.current = false;
       if (recognitionRef.current) {
+        recognitionRef.current.onend = null;
+        recognitionRef.current.onerror = null;
         recognitionRef.current.stop();
+        recognitionRef.current = null;
       }
+      setIsListening(false);
     };
   }, [settings.voiceAssistant]);
 
