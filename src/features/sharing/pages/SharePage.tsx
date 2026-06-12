@@ -38,7 +38,7 @@ export function SharePage() {
   ];
 
   return (
-    <PageLayout showNavigation={false}>
+    <PageLayout>
       <div>
         <button
           onClick={() => navigate(-1)}

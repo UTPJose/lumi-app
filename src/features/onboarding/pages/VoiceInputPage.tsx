@@ -58,7 +58,7 @@ export function VoiceInputPage() {
   const displayText = transcript || interimTranscript;
 
   return (
-    <PageLayout showNavigation={false}>
+    <PageLayout>
       <div>
         <h1 className="mb-3">Cuéntanos con tu voz</h1>
         <p className="text-muted-foreground">

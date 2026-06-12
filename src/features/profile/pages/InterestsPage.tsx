@@ -35,7 +35,7 @@ export function InterestsPage() {
   };
 
   return (
-    <PageLayout showNavigation={false}>
+    <PageLayout>
       <div>
         <h1 className="mb-3">¿Qué te gusta hacer?</h1>
         <p className="text-muted-foreground">

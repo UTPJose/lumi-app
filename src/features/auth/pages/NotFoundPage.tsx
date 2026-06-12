@@ -8,7 +8,7 @@ export function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <PageLayout showNavigation={false}>
+    <PageLayout>
       <div className="text-center space-y-8">
         <div>
           <h1 className="text-6xl mb-4">404</h1>

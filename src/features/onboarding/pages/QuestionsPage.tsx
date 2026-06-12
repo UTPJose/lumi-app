@@ -59,7 +59,7 @@ export function QuestionsPage() {
   };
 
   return (
-    <PageLayout showNavigation={false}>
+    <PageLayout>
       <div>
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">

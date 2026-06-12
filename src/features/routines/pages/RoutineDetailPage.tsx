@@ -45,7 +45,7 @@ export function RoutineDetailPage() {
 
   if (!routine) {
     return (
-      <PageLayout showNavigation={false}>
+      <PageLayout>
         <div className="text-center py-12">
           <h2 className="mb-4">Rutina no encontrada</h2>
           <AccessibleButton onClick={() => navigate('/library')} variant="primary">
@@ -121,7 +121,7 @@ export function RoutineDetailPage() {
   };
 
   return (
-    <PageLayout showNavigation={false}>
+    <PageLayout>
       <div>
         <button
           onClick={() => navigate('/library')}

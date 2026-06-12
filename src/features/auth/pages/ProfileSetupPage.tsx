@@ -20,7 +20,7 @@ export function ProfileSetupPage() {
   };
 
   return (
-    <PageLayout showNavigation={false}>
+    <PageLayout>
       <div>
         <h1 className="mb-3">Cuéntanos sobre ti</h1>
         <p className="text-muted-foreground">Esta información nos ayuda a crear rutinas más personalizadas.</p>
