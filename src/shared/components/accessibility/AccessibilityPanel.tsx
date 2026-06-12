@@ -39,7 +39,7 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
       {/* Bottom Sheet */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-background rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-background border-b border-border p-6 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-background border-b border-border p-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Accesibilidad</h2>
           <button
             onClick={onClose}

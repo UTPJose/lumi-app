@@ -76,6 +76,18 @@ export function useRoutines() {
     updateRoutine(routineId, updatedRoutine);
   };
 
+  const deleteMultipleActivities = (routineId: string, activityIds: string[]): void => {
+    const routine = getRoutineById(routineId);
+    if (!routine) return;
+
+    const updatedRoutine: Routine = {
+      ...routine,
+      activities: routine.activities.filter(a => !activityIds.includes(a.id)),
+    };
+
+    updateRoutine(routineId, updatedRoutine);
+  };
+
   const getCompletedActivitiesCount = (routineId: string): number => {
     const routine = getRoutineById(routineId);
     if (!routine) return 0;
@@ -115,6 +127,7 @@ export function useRoutines() {
     updateActivity,
     addActivityToRoutine,
     deleteActivityFromRoutine,
+    deleteMultipleActivities,
     getCompletedActivitiesCount,
     getTotalActivitiesCount,
     toggleRoutineSaved,

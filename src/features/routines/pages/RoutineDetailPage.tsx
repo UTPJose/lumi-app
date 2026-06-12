@@ -27,6 +27,7 @@ export function RoutineDetailPage() {
     toggleRoutineSaved,
     updateActivity,
     deleteActivityFromRoutine,
+    deleteMultipleActivities,
     addActivityToRoutine,
   } = useRoutines();
 
@@ -76,7 +77,7 @@ export function RoutineDetailPage() {
   };
 
   const handleDeleteSelected = () => {
-    selectedIds.forEach(actId => deleteActivityFromRoutine(id!, actId));
+    deleteMultipleActivities(id!, selectedIds);
     setSelectedIds([]);
     setIsSelectMode(false);
   };
