@@ -1,8 +1,9 @@
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
-import * as kv from "./kv_store.tsx";
-import { handleTTS } from "./tts.tsx";
+import * as kv from "./kv_store.ts";
+import { handleTTS } from "./tts.ts";
+import { handleGemini } from "./gemini.ts";
 const app = new Hono();
 
 // Enable logger
@@ -21,11 +22,19 @@ app.use(
 );
 
 // Health check endpoint
-app.get("/make-server-644deae1/health", (c) => {
+app.get("/server/health", (c) => {
   return c.json({ status: "ok" });
 });
 
+// Root health check
+app.get("/server", (c) => {
+  return c.json({ status: "ok", message: "server function is running" });
+});
+
 // Text-to-Speech endpoint
-app.post("/make-server-644deae1/tts", handleTTS);
+app.post("/server/tts", handleTTS);
+
+// Gemini AI endpoint
+app.post("/server/gemini", handleGemini);
 
 Deno.serve(app.fetch);
