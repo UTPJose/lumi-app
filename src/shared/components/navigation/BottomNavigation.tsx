@@ -71,7 +71,8 @@ export function BottomNavigation() {
         aria-label="Navegación principal"
       >
         <div className="max-w-md mx-auto flex justify-around items-center px-2 py-3">
-          {mainItems.map((item) => {
+          {/* First 2 items */}
+          {mainItems.slice(0, 2).map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
             
@@ -92,7 +93,7 @@ export function BottomNavigation() {
             );
           })}
           
-          {/* More button */}
+          {/* More button (center) */}
           <button
             onClick={() => setIsMoreOpen(!isMoreOpen)}
             className={`
@@ -109,6 +110,28 @@ export function BottomNavigation() {
             )}
             <span className="text-xs">Más</span>
           </button>
+          
+          {/* Last 2 items */}
+          {mainItems.slice(2).map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+            
+            return (
+              <button
+                key={item.label}
+                onClick={() => navigate(item.path)}
+                className={`
+                  flex flex-col items-center gap-1 min-w-[60px] py-2 px-2 rounded-xl transition-all
+                  ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}
+                `}
+                aria-label={item.label}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <Icon className="w-6 h-6" aria-hidden="true" />
+                <span className="text-xs">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 
