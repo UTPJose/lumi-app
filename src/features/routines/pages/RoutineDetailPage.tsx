@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Heart, Share2, ArrowLeft, Plus, Trash2, Pencil, X, Check } from 'lucide-react';
 import { ActivityCard } from '../components/ActivityCard';
+import { CompletionModal } from '../components/CompletionModal';
 import { AccessibleButton } from '../../../shared/components/buttons/AccessibleButton';
 import { ConfirmDialog } from '../../../shared/components/ui/confirm-dialog';
 import { PageLayout } from '../../../shared/components/layouts/PageLayout';
@@ -46,6 +47,8 @@ export function RoutineDetailPage() {
   const [newDescription, setNewDescription] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'multiple'; id?: string; name?: string } | null>(null);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const prevProgressRef = useRef(0);
 
   if (!routine) {
     return (
@@ -64,6 +67,13 @@ export function RoutineDetailPage() {
   const progress = routine.activities.length > 0
     ? (completedCount / routine.activities.length) * 100
     : 0;
+
+  useEffect(() => {
+    if (progress === 100 && prevProgressRef.current < 100 && routine.activities.length > 0) {
+      setShowCompletionModal(true);
+    }
+    prevProgressRef.current = progress;
+  }, [progress, routine.activities.length]);
 
   const handleToggleSelect = (actId: string) => {
     setSelectedIds(prev =>
@@ -393,13 +403,6 @@ export function RoutineDetailPage() {
         </div>
       </div>
 
-      {progress === 100 && (
-        <div className={`${CARD_STYLES.accent} p-6 text-center`}>
-          <h3 className="mb-2">¡Felicitaciones!</h3>
-          <p className="text-muted-foreground">Completaste todas las actividades del día. ¡Excelente trabajo!</p>
-        </div>
-      )}
-
       <ConfirmDialog
         isOpen={deleteDialogOpen}
         onClose={() => { setDeleteDialogOpen(false); setDeleteTarget(null); }}
@@ -409,6 +412,16 @@ export function RoutineDetailPage() {
           ? `¿Estás seguro de que quieres eliminar "${deleteTarget.name}"?`
           : `¿Estás seguro de que quieres eliminar ${selectedIds.length} actividad${selectedIds.length > 1 ? 'es' : ''}?`
         }
+      />
+
+      <CompletionModal
+        isOpen={showCompletionModal}
+        onClose={() => setShowCompletionModal(false)}
+        onGoToRoutines={() => {
+          setShowCompletionModal(false);
+          navigate('/library');
+        }}
+        routineTitle={routine.title}
       />
     </PageLayout>
   );

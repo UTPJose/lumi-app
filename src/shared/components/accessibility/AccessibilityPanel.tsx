@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 import { useAccessibility } from '../../context/AccessibilityContext';
 import { useSpeechSynthesis } from '../../../hooks/useSpeechSynthesis';
 import { CARD_STYLES, TEXT } from '@/styles/tailwind-constants';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/shared/components/ui/dialog';
+import { AccessibleButton } from '@/shared/components/buttons/AccessibleButton';
 
 interface AccessibilityPanelProps {
   isOpen: boolean;
@@ -13,6 +22,7 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
   const { settings, updateSetting, resetSettings } = useAccessibility();
   const { voicesCount } = useSpeechSynthesis();
   const isEnabled = settings.textToSpeech === 1;
+  const [showConflictModal, setShowConflictModal] = useState(false);
 
   // Close on escape
   useEffect(() => {
@@ -116,6 +126,10 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
           <button
             onClick={() => {
               const nextLevel = (settings.textToSpeech + 1) % 2;
+              if (nextLevel === 1 && settings.voiceAssistant === 1) {
+                setShowConflictModal(true);
+                return;
+              }
               updateSetting('textToSpeech', nextLevel);
             }}
             className={`w-full ${CARD_STYLES.base} ${CARD_STYLES.white} p-6 text-left transition-all hover:shadow-md active:scale-98`}
@@ -149,6 +163,10 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
             currentLevel={settings.voiceAssistant || 0}
             onChange={(level) => {
               const nextLevel = (level + 1) % 2;
+              if (nextLevel === 1 && settings.textToSpeech === 1) {
+                setShowConflictModal(true);
+                return;
+              }
               updateSetting('voiceAssistant', nextLevel);
             }}
           />
@@ -162,6 +180,31 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
           </button>
         </div>
       </div>
+
+      <Dialog open={showConflictModal} onOpenChange={setShowConflictModal}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              Funciones incompatibles
+            </DialogTitle>
+            <DialogDescription>
+              No se puede activar el micrófono mientras la lectura por voz está
+              activada, ya que el asistente escucharía su propia voz. Por favor,
+              desactiva la lectura por voz primero.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <AccessibleButton
+              onClick={() => setShowConflictModal(false)}
+              variant="primary"
+              fullWidth
+            >
+              Entendido
+            </AccessibleButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
